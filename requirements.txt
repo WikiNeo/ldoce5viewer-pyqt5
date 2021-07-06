@@ -1,0 +1,5 @@
+lxml==4.6.3
+PyGObject==3.40.1
+PyQt5==5.15.2
+PyQt5-sip==4.19.25
+Whoosh==2.7.4

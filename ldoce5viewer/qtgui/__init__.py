@@ -7,7 +7,7 @@ _SINGLEAPP_KEY = 'ed437af1-0388-4e13-90e9-486bdc88c77a'
 from .. import __author__
 
 # use PyQt API v2
-import sip
+import PyQt5.sip as sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
@@ -35,7 +35,8 @@ if not hasattr(QLineEdit, 'setPlaceholderText'):
 try:
     from . import ui
     from . import resources
-except ImportError:
+except ImportError as e:
+    print(e)
     print("need to run '$ make' in order for the program to work")
     exit()
 

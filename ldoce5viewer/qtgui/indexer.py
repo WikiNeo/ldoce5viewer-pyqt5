@@ -10,7 +10,7 @@ try:
     import cPickle as pickle
 except:
     import pickle
-from cgi import escape
+from html import escape
 from struct import Struct
 import traceback
 
