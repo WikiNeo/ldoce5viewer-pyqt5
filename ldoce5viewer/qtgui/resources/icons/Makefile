@@ -14,7 +14,7 @@ edit-clear-48.png: edit-clear-48-src.png
 	cp $< $@
 
 %-48.png: %-48-src.png
-	python2 icongen.py $< $@
+	python icongen.py $< $@
 
 %-24.png: %-48.png
 	convert $< -filter Lanczos -resize 24x24 $@
