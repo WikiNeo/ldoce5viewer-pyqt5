@@ -13,13 +13,8 @@ This software is free and open source software licensed under the terms of GPLv3
 ## Dependency
 
 ```shell
-python-pyqt5 python-lxml python-whoosh python-gobject qt5-webkit qt5-multimedia gst-plugins-good gst-plugins-ugly gst-plugins-libav
+sudo pacman -S python-pyqt5 python-lxml python-whoosh qt5-webkit qt5-multimedia gst-plugins-good gst-plugins-ugly python-gobject
 ```
-
-### Some note for Gentoo Linux
-
-- Install `PyQt5` with `webkit` flag
-- Install `qmultimedia` with `gstreamer` flag
 
 ## Development
 
@@ -30,5 +25,6 @@ python ldoce5viewer.py
 ## Install
 
 ```shell
+make
 sudo make install
 ```

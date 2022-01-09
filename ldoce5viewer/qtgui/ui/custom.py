@@ -85,10 +85,10 @@ class LineEdit(QLineEdit):
         rect = self.rect()
         self._buttonFind.move(
                 framewidth + 3 - 1,
-                (rect.height() - ICONSIZE) / 2 - 1)
+                (rect.height() - ICONSIZE) // 2 - 1)
         self._buttonClear.move(
                 rect.width() - framewidth - 3 - ICONSIZE - 1,
-                (rect.height() - ICONSIZE) / 2 - 1)
+                (rect.height() - ICONSIZE) // 2 - 1)
 
     def __onTextChanged(self, text):
         self._buttonClear.setVisible(bool(text))
