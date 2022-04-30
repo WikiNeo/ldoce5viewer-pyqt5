@@ -150,7 +150,7 @@ class HtmlListWidget(QListWidget):
                 doc.setDefaultFont(option.font)
                 doc.setHtml('<body>MNmn012<span class="p">012</span></body>')
                 height = doc.size().height() + self.MARGIN_V * 2
-                s = self._item_size = QSize(0, height)
+                s = self._item_size = QSize(0, int(height))
             return s
 
         def setStyleSheet(self, s):
