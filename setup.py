@@ -4,7 +4,6 @@ import subprocess
 from distutils.core import setup
 from ldoce5viewer import __version__
 
-
 def iter_static():
     import os, os.path
 
@@ -23,15 +22,14 @@ def iter_static():
 
 extra_options = {}
 
-
-#--------
-# py2exe
-#--------
+# -------------- For Windows-------------------
 try:
     import py2exe
 except ImportError:
+    print('py2exe NOT found')
     pass
 else:
+    print('USING py2exe')
     extra_options.update(dict(
         name='LDOCE5 Viewer',
         windows = [{
@@ -53,14 +51,14 @@ else:
         ))
 
 
-#--------
-# py2app
-#--------
+# -------------- For Mac OS X----------------
 try:
     import py2app
 except ImportError:
+    print('py2app NOT found')
     pass
 else:
+    print('USING py2app')
     qt_plugins_path = subprocess.check_output('qmake -query QT_INSTALL_PLUGINS', shell=True)
     qt_plugins_path = qt_plugins_path[0:len(qt_plugins_path)-1] # remove "\n"
     extra_options.update(dict(
@@ -98,11 +96,7 @@ else:
         ],
     ))
 
-
-#------------
-# setup(...)
-#------------
-
+# --------- Main----------------------
 if 'name' not in extra_options:
     extra_options['name'] = 'ldoce5viewer'
 
