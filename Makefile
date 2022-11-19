@@ -1,5 +1,5 @@
 PKG := ldoce5viewer
-PYTHON := python
+PYTHON := python3
 
 build: precompile
 	$(PYTHON) ./setup.py build
