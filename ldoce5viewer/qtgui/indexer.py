@@ -402,6 +402,8 @@ class IndexingThread(QThread):
 
     def _make_filemap(self):
         self._message("Building the file-location lookup table...")
+        # w+ means reading and writing file
+        # b means binary mode
         with open(get_config().filemap_path, "w+b") as f:
             maker = filemap.FilemapMaker(f)
             for archive_name in idmreader.get_archive_names():
@@ -417,6 +419,8 @@ class IndexingThread(QThread):
             maker.finalize()
 
     def _remove_all(self):
+        """remove all config files
+        """
         def rm(path):
             if os.path.exists(path):
                 if os.path.isfile(path):

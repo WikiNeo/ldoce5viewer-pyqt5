@@ -40,3 +40,8 @@ python ldoce5viewer.py
 make
 sudo make install
 ```
+
+## References
+
+- [https://en.wikipedia.org/wiki/Cdb_(software)](https://en.wikipedia.org/wiki/Cdb_(software))
+- [http://cr.yp.to/cdb/cdb.txt](http://cr.yp.to/cdb/cdb.txt)

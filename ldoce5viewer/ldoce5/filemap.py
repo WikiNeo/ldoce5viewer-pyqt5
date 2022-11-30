@@ -45,6 +45,10 @@ class FilemapReader(object):
 
 class FilemapMaker(object):
     def __init__(self, f):
+        """
+
+        f: file
+        """
         self._maker = cdb.CDBMaker(f)
 
     def add(self, archive, name, location):

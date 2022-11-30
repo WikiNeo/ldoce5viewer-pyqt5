@@ -59,12 +59,16 @@ class Searcher(object):
         if file_size != self._first + self._num * 4:
             raise IndexError('broken')
 
+    # Using these magic methods (__enter__, __exit__) allows you to implement objects which can be used easily with the
+    # with statement.
     def __enter__(self):
         return self
 
     def __exit__(self, *args):
         self.close()
 
+    # __del__ is a destructor method which is called as soon as all references of the object are deleted i.e when an
+    # object is garbage collected.
     def __del__(self):
         try:
             self.close()
@@ -77,6 +81,9 @@ class Searcher(object):
             self._mm = None
 
     def search(self, key, limit):
+        """
+        key: word to search
+        """
         key = normalize_index_key(key)
         if not key:
             return []

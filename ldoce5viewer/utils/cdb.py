@@ -1,10 +1,37 @@
 """A pure-python implementation of cdb"""
 
 from struct import Struct
+
+"""Memory-mapped file objects behave like both bytearray and like file objects. You can use mmap objects in most places 
+where bytearray are expected; for example, you can use the re module to search through a memory-mapped file. You can 
+also change a single byte by doing obj[index] = 97, or change a subsequence by assigning to a 
+slice: obj[i1:i2] = b'...'. You can also read and write data starting at the current file position, and seek() through 
+the file to different positions.
+"""
 from mmap import mmap, ACCESS_READ
 
+"""
+< little-endian
+L unsigned long -> 4 bytes
+
+class struct.Struct(format)
+    Return a new Struct object which writes and reads binary data according to the format string format. Creating a 
+    Struct object once and calling its methods is more efficient than calling module-level functions with the same 
+    format since the format string is only compiled once.
+"""
 _struct_2L = Struct(b'<LL')
+"""
+unpack(buffer)
+    Unpack from the buffer buffer (presumably packed by pack(format, ...)) according to the format string format. The 
+    result is a tuple even if it contains exactly one item. The buffer’s size in bytes must match the size required by the 
+    format, as reflected by calcsize().
+"""
 _read_2L = _struct_2L.unpack
+"""
+pack(v1, v2, ...)
+    Pack the values v1, v2, … according to the format string format and write the packed bytes into the writable 
+    buffer buffer starting at position offset. Note that offset is a required argument.
+"""
 _write_2L = _struct_2L.pack
 _read_512L = Struct(b'<512L').unpack
 
@@ -18,6 +45,13 @@ import itertools
 zip = getattr(itertools, 'izip', zip)
 
 def hashfunc(s):
+    """
+    Positions, lengths, and hash values are 32-bit quantities, stored in
+    little-endian form in 4 bytes. Thus a cdb must fit into 4 gigabytes.
+
+    The cdb hash function is ``h = ((h << 5) + h) ^ c'', with a starting
+    hash of 5381.
+    """
     h = 5381
     for c in bytearray(s):
         h = h * 33 & 0xffffffff ^ c
@@ -60,6 +94,13 @@ class CDBReader(object):
     def get(self, key, default=None):
         mm = self._mmap
         hashed = hashfunc(key)
+        """
+        A record is located as follows. Compute the hash value of the key in
+        the record. The hash value modulo 256 is the number of a hash table.
+        The hash value divided by 256, modulo the length of that table, is a
+        slot number. Probe that slot, the next higher slot, and so on, until
+        you find the record or run into an empty slot.
+        """
         (hashed_high, subidx) = divmod(hashed, 256)
         (pos_subtable, num_entries) = self._maintable[subidx]
         if pos_subtable <= 2048:
