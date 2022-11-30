@@ -31,6 +31,7 @@ def normalize_token(t):
 
 
 def normalize_index_key(key):
+    # remove space at the beginning and at the end of the string
     key = key.strip().lower()
     key = key.replace(u'\u00A9', u'c')
 
