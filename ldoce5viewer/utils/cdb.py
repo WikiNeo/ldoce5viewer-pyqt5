@@ -92,37 +92,50 @@ class CDBReader(object):
             self._mmap = None
 
     def get(self, key, default=None):
-        mm = self._mmap
-        hashed = hashfunc(key)
         """
-        A record is located as follows. Compute the hash value of the key in
-        the record. The hash value modulo 256 is the number of a hash table.
+        A record is located as follows.
         The hash value divided by 256, modulo the length of that table, is a
         slot number. Probe that slot, the next higher slot, and so on, until
         you find the record or run into an empty slot.
         """
-        (hashed_high, subidx) = divmod(hashed, 256)
-        (pos_subtable, num_entries) = self._maintable[subidx]
-        if pos_subtable <= 2048:
+        mm = self._mmap
+        # Compute the hash value of the key in the record.
+        hashed = hashfunc(key)
+        # Return the tuple (x//y, x%y).  Invariant: div*y + mod == x.
+        # The hash value modulo 256 is the number of a hash table.
+        (hashed_high, table_index) = divmod(hashed, 256)
+        """
+        Each of the 256 initial pointers states a position and a length. The
+        position is the starting byte position of the hash table. The length
+        is the number of slots in the hash table.
+        """
+        (pos_hash_table, num_of_slots) = self._maintable[table_index]
+        if pos_hash_table <= 2048:
             raise CDBError('broken file')
 
         def iter_subtable():
-            ini = hashed_high % num_entries
-            pa = pos_subtable + 8 * ini
-            pb = pos_subtable + 8 * num_entries
+            # The hash value divided by 256, modulo the length of that table, is a slot number.
+            init_slot = hashed_high % num_of_slots
+            """
+            Each hash table slot states a hash value and a byte position. If the
+            byte position is 0, the slot is empty. Otherwise, the slot points to
+            a record whose key has that hash value.
+            """
+            pa = pos_hash_table + 8 * init_slot
+            pb = pos_hash_table + 8 * num_of_slots
             for p in range(pa, pb, 8):
                 yield _read_2L(mm[p:p+8])
-            for p in range(pos_subtable, pa, 8):
+            for p in range(pos_hash_table, pa, 8):
                 yield _read_2L(mm[p:p+8])
 
-        if num_entries:
-            for (h, p) in iter_subtable():
-                if p == 0:
+        if num_of_slots:
+            for (hash_value, byte_position) in iter_subtable():
+                if byte_position == 0:
                     # not exist
                     break
-                if h == hashed:
-                    pk = p + 8
-                    (klen, vlen) = _read_2L(mm[p:pk])
+                if hash_value == hashed:
+                    pk = byte_position + 8
+                    (klen, vlen) = _read_2L(mm[byte_position:pk])
                     pv = pk + klen
                     if key == mm[pk:pv]:
                         return mm[pv:(pv+vlen)]
