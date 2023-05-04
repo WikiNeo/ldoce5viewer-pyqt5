@@ -9,7 +9,8 @@ This software is free and open source software licensed under the terms of GPLv3
 
 ## Dependency
 
-Python version: `3.8`
+- pyenv
+- Python version: `3.8`
 
 ```shell
 pip install requirements.txt
@@ -32,3 +33,4 @@ sudo make install
 
 - [https://en.wikipedia.org/wiki/Cdb_(software)](https://en.wikipedia.org/wiki/Cdb_(software))
 - [http://cr.yp.to/cdb/cdb.txt](http://cr.yp.to/cdb/cdb.txt)
+- [https://github.com/PyQt5/PyQtWebKit](https://github.com/PyQt5/PyQtWebKit)
