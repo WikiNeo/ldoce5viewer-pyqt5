@@ -13,3 +13,4 @@ ldoce5viewer/qtgui/ui/advanced.py
 ldoce5viewer/qtgui/ui/indexer.py
 
 .idea/
+venv/
