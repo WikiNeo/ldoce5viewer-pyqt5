@@ -1,7 +1,7 @@
 # LDOCE5 Viewer (PyQt5)
 
 The LDOCE5 Viewer is an alternative dictionary viewer for the Longman Dictionary of Contemporary English 5th 
-Edition (LDOCE 5).
+Edition (LDOCE5).
 
 This project is ported to PyQt5 which supports retina (HiDPI) display.  
 
