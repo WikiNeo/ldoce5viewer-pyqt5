@@ -53,7 +53,7 @@ from datetime import datetime
 sql_create_words_table = """
     CREATE TABLE IF NOT EXISTS words (
         id integer PRIMARY KEY,
-        word text NOT NULL,
+        word text NOT NULL UNIQUE,
         created_at text
     );
 """
@@ -598,8 +598,13 @@ class MainWindow(QMainWindow):
 
     def _save_to_sqlite(self, word):
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.cur.execute("INSERT INTO words (word, created_at) values(?,?)", (word, now))
+        try:
+            self.cur.execute("INSERT INTO words (word, created_at) values(?,?)", (word, now))
+        except sqlite3.IntegrityError:
+            print(f"Word {word} already exists in words table, ignored")
+            return False
         self.con.commit()
+        return True
 
     def _onLoadFinished(self, succeeded):
         if succeeded:
