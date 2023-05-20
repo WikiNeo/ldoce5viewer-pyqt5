@@ -4,6 +4,7 @@ import subprocess
 from distutils.core import setup
 from ldoce5viewer import __version__
 
+
 def iter_static():
     import os, os.path
 

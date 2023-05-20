@@ -4,31 +4,22 @@ import zlib
 import os.path
 import traceback
 
+from . import transform
 from .filemap import FilemapReader
 from .idmreader import ArchiveReader
-from . import transform
 from ..utils.cdb import CDBError, CDBReader
 
 
 class NotFoundError(Exception):
     pass
 
+
 class FilemapError(Exception):
     pass
 
+
 class ArchiveError(Exception):
     pass
-
-
-def load_from_cdb_archive(data_dir, archive_name, name):
-    path = os.path.join(data_dir, 'cdb_archives', archive_name + '.cdb')
-    with CDBReader(path) as db:
-        data = db[name.encode('utf-8')]
-        if data[0] == 'c':
-            data = zlib.decompress(data[1:])
-        else:
-            data = data[1:]
-        return data
 
 
 class LDOCE5(object):
@@ -43,12 +34,6 @@ class LDOCE5(object):
             raise NotFoundError(u'invalid path')
 
         def load_content(archive_name, name):
-            #try:
-            #    return load_from_cdb_archive(
-            #            self._data_dir, archive_name, name)
-            #except IOError:
-            #    pass
-
             try:
                 with FilemapReader(self._filemap_path) as fmr:
                     location = fmr.lookup(archive_name, name)

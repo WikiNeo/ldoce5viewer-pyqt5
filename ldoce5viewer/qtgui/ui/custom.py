@@ -4,7 +4,6 @@ import sys
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWebKit import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebKitWidgets import *
 from ...utils.text import ellipsis
@@ -181,15 +180,11 @@ class WebView(QWebView):
 
         self._actionSearchText = QAction(self)
         if sys.platform != "darwin":
-            self._actionSearchText.setIcon(
-                    QIcon.fromTheme('edit-find',
-                        QIcon(':/icons/edit-find.png')))
+            self._actionSearchText.setIcon(QIcon.fromTheme('edit-find', QIcon(':/icons/edit-find.png')))
         self._actionCopyPlain = QAction(self)
         self._actionCopyPlain.setText('Copy')
         if sys.platform != "darwin":
-            self._actionCopyPlain.setIcon(
-                    QIcon.fromTheme('edit-copy',
-                        QIcon(':/icons/edit-copy.png')))
+            self._actionCopyPlain.setIcon(QIcon.fromTheme('edit-copy', QIcon(':/icons/edit-copy.png')))
         self._actionCopyPlain.triggered.connect(self._copyAsPlainText)
         self._actionCopyPlain.setShortcut(QKeySequence.Copy)
         self.page().selectionChanged.connect(self.__onSelectionChanged)

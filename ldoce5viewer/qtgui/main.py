@@ -85,21 +85,10 @@ def _incr_delay_func(count):
 
 
 class MainWindow(QMainWindow):
-
-    # ------------
-    # MainWindow
-    # ------------
-
     def __init__(self):
         super(MainWindow, self).__init__()
 
         self._okToClose = False
-        # systray = QSystemTrayIcon(self)
-        # systray.setIcon(QIcon(":/icons/icon.png"))
-        # systray.show()
-        # def systray_activated(reason):
-        #    self.setVisible(self.isVisible() ^ True)
-        # systray.activated.connect(systray_activated)
 
         # results
         self._incr_results = None

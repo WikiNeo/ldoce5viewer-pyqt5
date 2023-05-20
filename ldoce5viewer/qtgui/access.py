@@ -1,4 +1,4 @@
-'''application-specific URI scheme handler for QtWebKit'''
+"""application-specific URI scheme handler for QtWebKit"""
 
 from __future__ import absolute_import
 from __future__ import print_function
@@ -8,10 +8,8 @@ import imp
 import os.path
 import traceback
 
-from PyQt5.QtCore import (
-    Qt, Q_ARG, QMetaObject, QIODevice, QTimer,)
-from PyQt5.QtNetwork import (
-    QNetworkAccessManager, QNetworkReply, QNetworkRequest,)
+from PyQt5.QtCore import (Qt, Q_ARG, QMetaObject, QIODevice, QTimer,)
+from PyQt5.QtNetwork import (QNetworkAccessManager, QNetworkReply, QNetworkRequest,)
 
 from .. import __version__
 from .. import __name__ as basepkgname
