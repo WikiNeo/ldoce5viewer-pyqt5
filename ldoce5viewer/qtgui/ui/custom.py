@@ -4,9 +4,10 @@ import sys
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWebKit import *
+# from PyQt5.QtWebKit import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtWebKitWidgets import *
+# from PyQt5.QtWebKitWidgets import *
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from ...utils.text import ellipsis
 
 
@@ -171,7 +172,7 @@ class HtmlListWidget(QListWidget):
         self._item_delegate.setStyleSheet(s)
 
 
-class WebView(QWebView):
+class WebView(QWebEngineView):
     wheelWithCtrl = pyqtSignal(int)
 
     def __init__(self, parent):
@@ -243,7 +244,7 @@ class WebView(QWebView):
 
         # replaces WebKit's copy action with plain-text copying
         try:
-            action_copy = page.action(QWebPage.Copy)
+            action_copy = page.action(QWebEnginePage.Copy)
             if action_copy in actions:
                 menu.insertAction(action_copy, self.actionCopyPlain)
                 menu.removeAction(action_copy)
@@ -252,7 +253,7 @@ class WebView(QWebView):
 
         # Inserts a separator before "Inspect Element"
         try:
-            action_inspector = page.action(QWebPage.InspectElement)
+            action_inspector = page.action(QWebEnginePage.InspectElement)
             pos = actions.index(action_inspector)
         except:
             pass
@@ -293,10 +294,10 @@ class WebView(QWebView):
 
     def handleNavMouseButtons(self, event):
         if event.button() == Qt.XButton1:
-            self.triggerPageAction(QWebPage.Back)
+            self.triggerPageAction(QWebEnginePage.Back)
             return True
         elif event.button() == Qt.XButton2:
-            self.triggerPageAction(QWebPage.Forward)
+            self.triggerPageAction(QWebEnginePage.Forward)
             return True
         return False
 

@@ -25,8 +25,9 @@ except ImportError:
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtNetwork import *
-from PyQt5.QtWebKit import *
-from PyQt5.QtWebKitWidgets import *
+# from PyQt5.QtWebKit import *
+# from PyQt5.QtWebKitWidgets import *
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineSettings
 from PyQt5.QtWidgets import *
 from PyQt5.QtPrintSupport import *
 
@@ -765,18 +766,18 @@ class MainWindow(QMainWindow):
     # -------------
 
     def _onNavForward(self):
-        self._ui.webView.page().triggerAction(QWebPage.Forward)
+        self._ui.webView.page().triggerAction(QWebEnginePage.Forward)
 
     def _onNavBack(self):
-        self._ui.webView.page().triggerAction(QWebPage.Back)
+        self._ui.webView.page().triggerAction(QWebEnginePage.Back)
 
     def _onNavActionChanged(self):
         webPage = self._ui.webView.page()
         ui = self._ui
         ui.toolButtonNavForward.setEnabled(
-            webPage.action(QWebPage.Forward).isEnabled())
+            webPage.action(QWebEnginePage.Forward).isEnabled())
         ui.toolButtonNavBack.setEnabled(
-            webPage.action(QWebPage.Back).isEnabled())
+            webPage.action(QWebEnginePage.Back).isEnabled())
 
     # -----------
     # Auto Pron
@@ -830,12 +831,12 @@ class MainWindow(QMainWindow):
 
         findtext = self._ui.webView.findText
         findtext('')
-        findtext('', QWebPage.HighlightAllOccurrences)
-        found = findtext(text, QWebPage.HighlightAllOccurrences)
+        findtext('', QWebEnginePage.HighlightAllOccurrences)
+        found = findtext(text, QWebEnginePage.HighlightAllOccurrences)
         self._ui.actionFindNext.setEnabled(found)
         self._ui.actionFindPrev.setEnabled(found)
         if found:
-            findtext(text, QWebPage.FindWrapsAroundDocument)
+            findtext(text, QWebEnginePage.FindWrapsAroundDocument)
         if found or not text:
             style = 'QLineEdit{ background-color: auto; color: auto; }'
         else:
@@ -845,12 +846,12 @@ class MainWindow(QMainWindow):
     def findNext(self):
         self._ui.webView.findText(
             self._ui.lineEditFind.text(),
-            QWebPage.FindWrapsAroundDocument)
+            QWebEnginePage.FindWrapsAroundDocument)
 
     def findPrev(self):
         self._ui.webView.findText(
             self._ui.lineEditFind.text(),
-            QWebPage.FindBackward | QWebPage.FindWrapsAroundDocument)
+            QWebEnginePage.FindBackward | QWebEnginePage.FindWrapsAroundDocument)
 
     # -------
     # Print
@@ -878,7 +879,7 @@ class MainWindow(QMainWindow):
 
     def setInspectorVisible(self, visible):
         ui = self._ui
-        ui.webInspector.setVisible(visible)
+        # ui.webInspector.setVisible(visible)
         ui.inspectorContainer.setVisible(visible)
 
     # -------
@@ -1010,18 +1011,18 @@ class MainWindow(QMainWindow):
             _set_icon(ui.actionAbout, 'help-about')
             _set_icon(ui.actionPrint, 'document-print')
             _set_icon(ui.actionPrintPreview, 'document-print-preview')
-            _set_icon(wp.action(QWebPage.Forward), 'go-next', '24')
-            _set_icon(wp.action(QWebPage.Back), 'go-previous', '24')
-            _set_icon(wp.action(QWebPage.Reload), 'reload')
-            _set_icon(wp.action(QWebPage.CopyImageToClipboard), 'edit-copy')
-            _set_icon(wp.action(QWebPage.InspectElement), 'document-properties')
+            _set_icon(wp.action(QWebEnginePage.Forward), 'go-next', '24')
+            _set_icon(wp.action(QWebEnginePage.Back), 'go-previous', '24')
+            _set_icon(wp.action(QWebEnginePage.Reload), 'reload')
+            _set_icon(wp.action(QWebEnginePage.CopyImageToClipboard), 'edit-copy')
+            _set_icon(wp.action(QWebEnginePage.InspectElement), 'document-properties')
         else:
             ui.toolBar.setIconSize(QSize(16, 16))
             ui.actionNavForward.setIcon(QIcon(":/icons/go-next-mac.png"))
             ui.actionNavBack.setIcon(QIcon(":/icons/go-previous-mac.png"))
-            _set_icon(wp.action(QWebPage.Forward))
-            _set_icon(wp.action(QWebPage.Back))
-            _set_icon(wp.action(QWebPage.Reload))
+            _set_icon(wp.action(QWebEnginePage.Forward))
+            _set_icon(wp.action(QWebEnginePage.Back))
+            _set_icon(wp.action(QWebEnginePage.Reload))
 
         ui.frameFindbar.setStyleSheet("""#frameFindbar {
             border: 0px solid transparent;
@@ -1057,30 +1058,30 @@ class MainWindow(QMainWindow):
         # Nav Buttons
         ui.actionNavForward.triggered.connect(self._onNavForward)
         ui.actionNavBack.triggered.connect(self._onNavBack)
-        wp.action(QWebPage.Forward).changed.connect(self._onNavActionChanged)
-        wp.action(QWebPage.Back).changed.connect(self._onNavActionChanged)
+        wp.action(QWebEnginePage.Forward).changed.connect(self._onNavActionChanged)
+        wp.action(QWebEnginePage.Back).changed.connect(self._onNavActionChanged)
 
         # ListView
         ui.listWidgetIndex.setAttribute(Qt.WA_MacShowFocusRect, False);
 
         # WebView
-        wp.setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        QWebSettings.setMaximumPagesInCache(32)
-        wv.history().setMaximumItemCount(50)
-        for name in _LOCAL_SCHEMES:
-            QWebSecurityOrigin.addLocalScheme(name)
+        # wp.setLinkDelegationPolicy(QWebEnginePage.DelegateAllLinks)
+        # QWebEngineSettings.setMaximumPagesInCache(32)
+        # wv.history().setMaximumItemCount(50)
+        # for name in _LOCAL_SCHEMES:
+        #     QWebSecurityOrigin.addLocalScheme(name)
 
-        for web_act in (QWebPage.OpenLinkInNewWindow,
-                        QWebPage.OpenFrameInNewWindow, QWebPage.OpenImageInNewWindow,
-                        QWebPage.DownloadLinkToDisk, QWebPage.DownloadImageToDisk,
-                        QWebPage.CopyLinkToClipboard, QWebPage.CopyImageToClipboard,
+        for web_act in (QWebEnginePage.OpenLinkInNewWindow,
+                        # QWebEnginePage.OpenFrameInNewWindow, QWebEnginePage.OpenImageInNewWindow,
+                        QWebEnginePage.DownloadLinkToDisk, QWebEnginePage.DownloadImageToDisk,
+                        QWebEnginePage.CopyLinkToClipboard, QWebEnginePage.CopyImageToClipboard,
                         ):
             wp.action(web_act).setEnabled(False)
             wp.action(web_act).setVisible(False)
 
-        if hasattr(QWebPage, 'CopyImageUrlToClipboard'):
-            wp.action(QWebPage.CopyImageUrlToClipboard).setEnabled(False)
-            wp.action(QWebPage.CopyImageUrlToClipboard).setVisible(False)
+        if hasattr(QWebEnginePage, 'CopyImageUrlToClipboard'):
+            wp.action(QWebEnginePage.CopyImageUrlToClipboard).setEnabled(False)
+            wp.action(QWebEnginePage.CopyImageUrlToClipboard).setVisible(False)
 
         ui.menuEdit.insertAction(ui.actionFind, wv.actionCopyPlain)
         ui.menuEdit.insertSeparator(ui.actionFind)
@@ -1089,9 +1090,9 @@ class MainWindow(QMainWindow):
         wv.actionSearchText.setShortcut(QKeySequence('Ctrl+E'))
 
         # Web Inspector
-        wp.settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
-        wp.action(QWebPage.InspectElement).setText('Inspect Element')
-        ui.webInspector.setPage(wp)
+        # wp.settings().setAttribute(QWebEngineSettings.DeveloperExtrasEnabled, True)
+        wp.action(QWebEnginePage.InspectElement).setText('Inspect Element')
+        # ui.webInspector.setPage(wp)
         self.setInspectorVisible(False)
 
         # History Menu
@@ -1112,7 +1113,7 @@ class MainWindow(QMainWindow):
         ui.lineEditFind.shiftReturnPressed.connect(self.findPrev)
         ui.listWidgetIndex.itemSelectionChanged.connect(
             self._onItemSelectionChanged)
-        wp.linkClicked.connect(self._onWebViewLinkClicked)
+        # wp.linkClicked.connect(self._onWebViewLinkClicked)
         wv.loadStarted.connect(partial(self.setFindbarVisible, visible=False))
         wv.wheelWithCtrl.connect(self._onWebViewWheelWithCtrl)
         wv.urlChanged.connect(self._onUrlChanged)
@@ -1145,7 +1146,7 @@ class MainWindow(QMainWindow):
                  partial(self.setFindbarVisible, visible=False))
         act_conn(ui.actionCloseInspector,
                  partial(self.setInspectorVisible, visible=False))
-        act_conn(wp.action(QWebPage.InspectElement),
+        act_conn(wp.action(QWebEnginePage.InspectElement),
                  partial(self.setInspectorVisible, visible=True))
 
         ui.actionGroupAutoPron = QActionGroup(self)
@@ -1156,7 +1157,7 @@ class MainWindow(QMainWindow):
         ui.actionGroupAutoPron.triggered.connect(self._onAutoPronChanged)
 
         self.addAction(ui.actionFocusLineEdit)
-        self.addAction(wp.action(QWebPage.SelectAll))
+        self.addAction(wp.action(QWebEnginePage.SelectAll))
 
         # Set an action to each ToolButton
         ui.toolButtonFindNext.setDefaultAction(ui.actionFindNext)
@@ -1180,11 +1181,11 @@ class MainWindow(QMainWindow):
         ui.actionPrint.setShortcuts(QKeySequence.Print)
         ui.actionNormalSize.setShortcut(QKeySequence('Ctrl+0'))
         ui.actionFocusLineEdit.setShortcut(QKeySequence('Ctrl+L'))
-        wp.action(QWebPage.SelectAll).setShortcut(QKeySequence('Ctrl+A'))
-        wp.action(QWebPage.Back).setShortcuts([
+        wp.action(QWebEnginePage.SelectAll).setShortcut(QKeySequence('Ctrl+A'))
+        wp.action(QWebEnginePage.Back).setShortcuts([
             k for k in QKeySequence.keyBindings(QKeySequence.Back)
             if not k.matches(QKeySequence("Backspace"))])
-        wp.action(QWebPage.Forward).setShortcuts(
+        wp.action(QWebEnginePage.Forward).setShortcuts(
             [k for k in QKeySequence.keyBindings(QKeySequence.Forward)
              if not k.matches(QKeySequence("Shift+Backspace"))])
         ui.actionNavBack.setShortcuts([
@@ -1257,7 +1258,7 @@ class MainWindow(QMainWindow):
     def _updateNetworkAccessManager(self, fulltext_hp, fulltext_de):
         nwaccess = MyNetworkAccessManager(self, fulltext_hp, fulltext_de)
         webPage = self._ui.webView.page()
-        webPage.setNetworkAccessManager(nwaccess)
+        # webPage.setNetworkAccessManager(nwaccess)
         self._networkAccessManager = nwaccess
 
     def _unload_searchers(self):
