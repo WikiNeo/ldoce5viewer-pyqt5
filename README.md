@@ -13,7 +13,10 @@ This software is free and open source software licensed under the terms of GPLv3
 - Python version: `3.8`
 
 ```shell
-pip install requirements.txt
+pyenv install
+python -m venv venv
+source ./venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ## Development
