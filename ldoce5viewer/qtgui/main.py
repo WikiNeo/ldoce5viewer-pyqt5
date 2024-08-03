@@ -1,4 +1,4 @@
-'''Main window'''
+"""Main window"""
 
 from __future__ import absolute_import
 from __future__ import unicode_literals
@@ -23,21 +23,21 @@ except ImportError:
     objc = None
 
 from PyQt5.QtCore import *
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import *
 from PyQt5.QtNetwork import *
 from PyQt5.QtWebKit import *
 from PyQt5.QtWebKitWidgets import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtPrintSupport import *
 
 from .. import fulltext
 from .. import incremental
 from ..ldoce5.idmreader import is_ldoce5_dir
 from ..utils.compat import range
-from ..utils.text import (MATCH_OPEN_TAG, MATCH_CLOSE_TAG, ellipsis,
-                          normalize_index_key)
+from ..utils.text import MATCH_OPEN_TAG, MATCH_CLOSE_TAG, ellipsis, normalize_index_key
 
-from . import indexer
 from .advanced import AdvancedSearchDialog
 from .config import get_config
 from .access import MyNetworkAccessManager, _load_static_data
@@ -64,19 +64,19 @@ _FTS_HWDPHR_LIMIT = 10000
 _INCREMENTAL_LIMIT = 500
 _MAX_DELAY_UPDATE_INDEX = 100
 _INTERVAL_AUTO_PRON = 50
-_LOCAL_SCHEMES = frozenset(('dict', 'static', 'search', 'audio'))
+_LOCAL_SCHEMES = frozenset(("dict", "static", "search", "audio"))
 _HELP_PAGE_URL = "http://hakidame.net/ldoce5viewer/manual/"
 
 # Identifiers for lazy-loaded objects
-_LAZY_INCREMENTAL = 'incremental'
-_LAZY_FTS_HWDPHR = 'fts_hwdphr'
-_LAZY_FTS_DEFEXA = 'fts_defexa'
-_LAZY_FTS_HWDPHR_ASYNC = 'fts_hwdphr_async'
-_LAZY_SOUNDPLAYER = 'soundplayer'
-_LAZY_ADVSEARCH_WINDOW = 'advsearch_window'
-_LAZY_PRINTER = 'printer'
+_LAZY_INCREMENTAL = "incremental"
+_LAZY_FTS_HWDPHR = "fts_hwdphr"
+_LAZY_FTS_DEFEXA = "fts_defexa"
+_LAZY_FTS_HWDPHR_ASYNC = "fts_hwdphr_async"
+_LAZY_SOUNDPLAYER = "soundplayer"
+_LAZY_ADVSEARCH_WINDOW = "advsearch_window"
+_LAZY_PRINTER = "printer"
 
-_IS_OSX = sys.platform.startswith('darwin')
+_IS_OSX = sys.platform.startswith("darwin")
 
 
 def _incr_delay_func(count):
@@ -85,11 +85,6 @@ def _incr_delay_func(count):
 
 
 class MainWindow(QMainWindow):
-
-    # ------------
-    # MainWindow
-    # ------------
-
     def __init__(self):
         super(MainWindow, self).__init__()
 
@@ -126,29 +121,26 @@ class MainWindow(QMainWindow):
             timer.timeout.connect(slot)
             return timer
 
-        self._timerUpdateIndex = \
-            _makeSingleShotTimer(self._updateIndex)
-        self._timerAutoFTS = \
-            _makeSingleShotTimer(self._onTimerAutoFullSearchTimeout)
-        self._timerAutoPron = \
-            _makeSingleShotTimer(self._onTimerAutoPronTimeout)
-        self._timerSpellCorrection = \
-            _makeSingleShotTimer(self._onTimerSpellCorrection)
-        self._timerSearchingLabel = \
-            _makeSingleShotTimer(self._onTimerSearchingLabel)
+        self._timerUpdateIndex = _makeSingleShotTimer(self._updateIndex)
+        self._timerAutoFTS = _makeSingleShotTimer(self._onTimerAutoFullSearchTimeout)
+        self._timerAutoPron = _makeSingleShotTimer(self._onTimerAutoPronTimeout)
+        self._timerSpellCorrection = _makeSingleShotTimer(self._onTimerSpellCorrection)
+        self._timerSearchingLabel = _makeSingleShotTimer(self._onTimerSearchingLabel)
 
         # Clipboard
         clipboard = QApplication.clipboard()
         clipboard.dataChanged.connect(
-            partial(self._onClipboardChanged, mode=QClipboard.Clipboard))
+            partial(self._onClipboardChanged, mode=QClipboard.Clipboard)
+        )
         clipboard.selectionChanged.connect(
-            partial(self._onClipboardChanged, mode=QClipboard.Selection))
+            partial(self._onClipboardChanged, mode=QClipboard.Selection)
+        )
 
         # Stylesheet for the item list pane
         try:
             self._ui.listWidgetIndex.setStyleSheet(
-                _load_static_data('styles/list.css') \
-                    .decode('utf-8', 'ignore'))
+                _load_static_data("styles/list.css").decode("utf-8", "ignore")
+            )
         except EnvironmentError:
             pass
 
@@ -160,12 +152,14 @@ class MainWindow(QMainWindow):
 
         # Click on the dock icon (OS X)
         if objc:
+
             def applicationShouldHandleReopen_hasVisibleWindows_(s, a, f):
                 self.show()
 
             objc.classAddMethods(
                 Cocoa.NSApplication.sharedApplication().delegate().class__(),
-                [applicationShouldHandleReopen_hasVisibleWindows_])
+                [applicationShouldHandleReopen_hasVisibleWindows_],
+            )
 
     def close(self):
         self._okToClose = True
@@ -194,24 +188,24 @@ class MainWindow(QMainWindow):
         width = event.size().width()
         if width < 350:
             sp.setOrientation(Qt.Vertical)
-            ui.actionSearchExamples.setText('E')
-            ui.actionSearchDefinitions.setText('D')
-            ui.actionAdvancedSearch.setText('A')
+            ui.actionSearchExamples.setText("E")
+            ui.actionSearchDefinitions.setText("D")
+            ui.actionAdvancedSearch.setText("A")
         elif width < 550:
             sp.setOrientation(Qt.Vertical)
-            ui.actionSearchExamples.setText('Exa')
-            ui.actionSearchDefinitions.setText('Def')
-            ui.actionAdvancedSearch.setText('Adv')
+            ui.actionSearchExamples.setText("Exa")
+            ui.actionSearchDefinitions.setText("Def")
+            ui.actionAdvancedSearch.setText("Adv")
         elif width < 900:
             sp.setOrientation(Qt.Horizontal)
-            ui.actionSearchExamples.setText('Exa')
-            ui.actionSearchDefinitions.setText('Def')
-            ui.actionAdvancedSearch.setText('Advanced')
+            ui.actionSearchExamples.setText("Exa")
+            ui.actionSearchDefinitions.setText("Def")
+            ui.actionAdvancedSearch.setText("Advanced")
         else:
             sp.setOrientation(Qt.Horizontal)
-            ui.actionSearchExamples.setText('Examples')
-            ui.actionSearchDefinitions.setText('Definitions')
-            ui.actionAdvancedSearch.setText('Advanced')
+            ui.actionSearchExamples.setText("Examples")
+            ui.actionSearchDefinitions.setText("Definitions")
+            ui.actionAdvancedSearch.setText("Advanced")
 
     def keyPressEvent(self, event):
         key = event.key()
@@ -219,19 +213,28 @@ class MainWindow(QMainWindow):
         ctrl = Qt.MetaModifier if _IS_OSX else Qt.ControlModifier
         le = self._ui.lineEditSearch
 
-        if key == Qt.Key_Down or \
-                (key == Qt.Key_J and modifiers == ctrl) or \
-                (key == Qt.Key_Return and modifiers == Qt.NoModifier):
+        if (
+            key == Qt.Key_Down
+            or (key == Qt.Key_J and modifiers == ctrl)
+            or (key == Qt.Key_Return and modifiers == Qt.NoModifier)
+        ):
             self.selectItemRelative(1)
-        elif key == Qt.Key_Up or \
-                (key == Qt.Key_K and modifiers == ctrl) or \
-                (key == Qt.Key_Return and modifiers == Qt.ShiftModifier):
+        elif (
+            key == Qt.Key_Up
+            or (key == Qt.Key_K and modifiers == ctrl)
+            or (key == Qt.Key_Return and modifiers == Qt.ShiftModifier)
+        ):
             self.selectItemRelative(-1)
         elif key == Qt.Key_Backspace:
             le.setFocus()
             le.setText(self._ui.lineEditSearch.text()[:-1])
-        elif key in (Qt.Key_Space, Qt.Key_PageDown, Qt.Key_PageUp,
-                     Qt.Key_Home, Qt.Key_End):
+        elif key in (
+            Qt.Key_Space,
+            Qt.Key_PageDown,
+            Qt.Key_PageUp,
+            Qt.Key_Home,
+            Qt.Key_End,
+        ):
             self._ui.webView.setFocus()
             self._ui.webView.keyPressEvent(event)
         elif event.text().isalnum():
@@ -248,21 +251,27 @@ class MainWindow(QMainWindow):
         ctrl = Qt.MetaModifier if _IS_OSX else Qt.ControlModifier
 
         if (not event.isAutoRepeat()) and mouse_buttons == Qt.NoButton:
-            if key == Qt.Key_Down or \
-                    (key == Qt.Key_J and modifiers == ctrl) or \
-                    (key == Qt.Key_Return and modifiers == Qt.NoModifier):
+            if (
+                key == Qt.Key_Down
+                or (key == Qt.Key_J and modifiers == ctrl)
+                or (key == Qt.Key_Return and modifiers == Qt.NoModifier)
+            ):
                 self._loadItem()
-            elif key == Qt.Key_Up or \
-                    (key == Qt.Key_K and modifiers == ctrl) or \
-                    (key == Qt.Key_Return and modifiers == Qt.ShiftModifier):
+            elif (
+                key == Qt.Key_Up
+                or (key == Qt.Key_K and modifiers == ctrl)
+                or (key == Qt.Key_Return and modifiers == Qt.ShiftModifier)
+            ):
                 self._loadItem()
 
     def _updateTitle(self, title):
         title = title.strip()
         if title:
-            self.setWindowTitle('{title} - {appname}'.format(
-                title=title,
-                appname=QApplication.applicationName()))
+            self.setWindowTitle(
+                "{title} - {appname}".format(
+                    title=title, appname=QApplication.applicationName()
+                )
+            )
         else:
             self.setWindowTitle(QApplication.applicationName())
 
@@ -282,11 +291,11 @@ class MainWindow(QMainWindow):
 
         def _replace_htmltags(s):
             def opentag(m):
-                return ''.join(('<span class="', m.group(1), '">'))
+                return "".join(('<span class="', m.group(1), '">'))
 
-            s = MATCH_CLOSE_TAG.sub('</span>', s)
+            s = MATCH_CLOSE_TAG.sub("</span>", s)
             s = MATCH_OPEN_TAG.sub(opentag, s)
-            return ''.join(('<body>', s, '</body>'))
+            return "".join(("<body>", s, "</body>"))
 
         lw = self._ui.listWidgetIndex
 
@@ -294,9 +303,13 @@ class MainWindow(QMainWindow):
         full_res = self._fts_results
 
         query = self._ui.lineEditSearch.text().strip()
-        if incr_res is not None and full_res is not None \
-                and len(incr_res) == 0 and len(full_res) == 0 \
-                and len(query.split()) == 1:
+        if (
+            incr_res is not None
+            and full_res is not None
+            and len(incr_res) == 0
+            and len(full_res) == 0
+            and len(query.split()) == 1
+        ):
             self._timerSpellCorrection.start(200)
 
         # Escape the previous selection
@@ -308,8 +321,9 @@ class MainWindow(QMainWindow):
         # Update Index
         if incr_res and full_res:
             closed = set(map(path_getter, incr_res))
-            self._found_items = incr_res + tuple(item
-                                                 for item in full_res if path_getter(item) not in closed)
+            self._found_items = incr_res + tuple(
+                item for item in full_res if path_getter(item) not in closed
+            )
         elif incr_res:
             self._found_items = tuple(incr_res)
         elif full_res:
@@ -321,8 +335,9 @@ class MainWindow(QMainWindow):
         del full_res
 
         # Create a new list
-        items = tuple(_replace_htmltags(text_getter(item))
-                      for item in self._found_items)
+        items = tuple(
+            _replace_htmltags(text_getter(item)) for item in self._found_items
+        )
         lw.clear()
         lw.addItems(items)
 
@@ -337,8 +352,8 @@ class MainWindow(QMainWindow):
 
         url = self._ui.webView.url().toString()
         sel_row = -1
-        for (row, path) in enumerate(map(path_getter, self._found_items)):
-            if 'dict:' + path == url:
+        for row, path in enumerate(map(path_getter, self._found_items)):
+            if "dict:" + path == url:
                 sel_row = row
                 break
 
@@ -373,7 +388,7 @@ class MainWindow(QMainWindow):
             # Find the prefix/exact match
             text = normalize_index_key(ui.lineEditSearch.text()).lower()
             sortkey_iter = map(sortkey_getter, self._found_items)
-            for (row, sortkey) in enumerate(sortkey_iter):
+            for row, sortkey in enumerate(sortkey_iter):
                 if sortkey.lower().startswith(text):
                     lw.setFocus()
                     lw.setCurrentRow(row)
@@ -384,7 +399,7 @@ class MainWindow(QMainWindow):
             sm = SequenceMatcher(a=text)
             max_ratio = 0
             sortkeys = map(sortkey_getter, self._found_items)
-            for (r, sortkey) in enumerate(sortkeys):
+            for r, sortkey in enumerate(sortkeys):
                 sm.set_seq2(sortkey)
                 ratio = sm.quick_ratio()
                 if ratio > max_ratio:
@@ -409,7 +424,7 @@ class MainWindow(QMainWindow):
 
         if 0 <= row < len(self._found_items):
             path = self._found_items[row][1]
-            url = QUrl('dict://' + path)
+            url = QUrl("dict://" + path)
             if url != self._ui.webView.url():
                 self._ui.webView.load(url)
 
@@ -440,7 +455,7 @@ class MainWindow(QMainWindow):
         self._fts_results = None
 
         if query:
-            contains_wild = any(c in query for c in '*?')
+            contains_wild = any(c in query for c in "*?")
 
             if not contains_wild:
                 results = self._incremental_search(query)
@@ -451,10 +466,13 @@ class MainWindow(QMainWindow):
                 self._auto_fts_phrase = query
                 self._timerAutoFTS.start(0)
                 self._timerUpdateIndex.start(
-                    _incr_delay_func(len(results)) if delay else 0)
+                    _incr_delay_func(len(results)) if delay else 0
+                )
             else:
-                self._ui.webView.setHtml("""<p>The incremental search index"""
-                                         """ has not been created yet or broken.</p>""")
+                self._ui.webView.setHtml(
+                    """<p>The incremental search index"""
+                    """ has not been created yet or broken.</p>"""
+                )
                 self._timerUpdateIndex.start(0)
         else:
             self._timerUpdateIndex.start(0)
@@ -463,7 +481,7 @@ class MainWindow(QMainWindow):
         query = self._auto_fts_phrase
         if self._fts_hwdphr_async:
             if any(c in query for c in "?*"):
-                itemtypes = ('hm',)
+                itemtypes = ("hm",)
             else:
                 itemtypes = ()
             self._timerSearchingLabel.start(200)
@@ -471,7 +489,8 @@ class MainWindow(QMainWindow):
                 query_str1=query,
                 itemtypes=itemtypes,
                 limit=_FTS_HWDPHR_LIMIT + 1,
-                merge=True)
+                merge=True,
+            )
 
     def _onTimerSpellCorrection(self):
         query = self._ui.lineEditSearch.text()
@@ -515,7 +534,8 @@ class MainWindow(QMainWindow):
         self._ui.labelSearching.hide()
         self._ui.webView.setHtml(
             """<p>The full-text search index """
-            """has not been created yet or broken.</p>""")
+            """has not been created yet or broken.</p>"""
+        )
 
     def _onTimerSearchingLabel(self):
         self._ui.labelSearching.show()
@@ -542,13 +562,14 @@ class MainWindow(QMainWindow):
         self._getAudioData(path, lambda data: self._soundplayer.play(data))
 
     def _getAudioData(self, path, callback):
-        (archive, name) = path.lstrip('/').split('/', 1)
-        if archive in ('us_hwd_pron', 'gb_hwd_pron', 'exa_pron', 'sfx', 'sound'):
+        (archive, name) = path.lstrip("/").split("/", 1)
+        if archive in ("us_hwd_pron", "gb_hwd_pron", "exa_pron", "sfx", "sound"):
+
             def finished():
                 if reply.error() == QNetworkReply.NoError:
                     callback(reply.readAll())
 
-            url = QUrl('dict:///{0}/{1}'.format(archive, name))
+            url = QUrl("dict:///{0}/{1}".format(archive, name))
             reply = self._networkAccessManager.get(QNetworkRequest(url))
             reply.finished.connect(finished)
 
@@ -556,12 +577,13 @@ class MainWindow(QMainWindow):
         path = self._ui.webView.audioUrlToDownload.path()
 
         def showSaveDialog(data):
-            filename = QFileDialog.getSaveFileName(self, u'Save mp3', \
-                                                   '', u'MP3 Files (*.mp3)')
+            filename = QFileDialog.getSaveFileName(
+                self, "Save mp3", "", "MP3 Files (*.mp3)"
+            )
             if type(filename) is tuple:
                 filename = filename[0]
 
-            if filename != '':
+            if filename != "":
                 file = open(filename, "wb")
                 file.write(data)
                 file.close()
@@ -570,13 +592,13 @@ class MainWindow(QMainWindow):
 
     def _onWebViewLinkClicked(self, url):
         scheme = url.scheme()
-        if scheme == 'audio':
+        if scheme == "audio":
             self._playbackAudio(url.path())
-        elif scheme == 'lookup':
+        elif scheme == "lookup":
             urlQuery = QUrlQuery(url)
             query = dict(urlQuery.queryItems())
-            if 'q' in query:
-                q = query['q'].replace('+', ' ')
+            if "q" in query:
+                q = query["q"].replace("+", " ")
                 self._ui.lineEditSearch.setText(q)
                 self._instantSearch(pending=True, delay=False)
         elif scheme in _LOCAL_SCHEMES:
@@ -592,13 +614,15 @@ class MainWindow(QMainWindow):
         config = get_config()
         zoom_power = val
         if relative:
-            zoom_power += config.get('zoomPower', 0)
-        config['zoomPower'] = max(-10, min(20, zoom_power))
-        self._ui.webView.setZoomFactor(1.05 ** config['zoomPower'])
+            zoom_power += config.get("zoomPower", 0)
+        config["zoomPower"] = max(-10, min(20, zoom_power))
+        self._ui.webView.setZoomFactor(1.05 ** config["zoomPower"])
 
     def _save_to_sqlite(self, word):
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.cur.execute("INSERT INTO words (word, created_at) values(?,?)", (word, now))
+        self.cur.execute(
+            "INSERT INTO words (word, created_at) values(?,?)", (word, now)
+        )
         self.con.commit()
 
     def _onLoadFinished(self, succeeded):
@@ -613,8 +637,9 @@ class MainWindow(QMainWindow):
 
     def _onUrlChanged(self, url):
         history = self._ui.webView.history()
-        if history.currentItemIndex() == 1 and \
-                history.itemAt(0).url() == QUrl('about:blank'):
+        if history.currentItemIndex() == 1 and history.itemAt(0).url() == QUrl(
+            "about:blank"
+        ):
             history.clear()
 
         # Update history menu
@@ -629,10 +654,10 @@ class MainWindow(QMainWindow):
 
             items = [(idx, item) for (idx, item) in enumerate(items)]
             if back:
-                items = items[max(0, curidx - 20):curidx]
+                items = items[max(0, curidx - 20) : curidx]
                 items.reverse()
             else:
-                items = items[curidx + 1:curidx + 1 + 20]
+                items = items[curidx + 1 : curidx + 1 + 20]
             urlset = set()
             menu.clear()
             for idx, hitem in items:
@@ -686,9 +711,10 @@ class MainWindow(QMainWindow):
             self._fts_hwdphr_async.update_query(
                 query_str1=phrase,
                 query_str2=filters,
-                itemtypes=('hm',),
+                itemtypes=("hm",),
                 limit=None,
-                merge=False)
+                merge=False,
+            )
             self._timerUpdateIndex.start(0)
 
         if self._fts_hwdphr and self._fts_defexa:
@@ -705,12 +731,12 @@ class MainWindow(QMainWindow):
 
     def _onSearchExamples(self):
         query_str = self._ui.lineEditSearch.text().strip()
-        self.fullSearch(query_str, None, mode='examples', only_web=True)
+        self.fullSearch(query_str, None, mode="examples", only_web=True)
         self._ui.actionSearchExamples.setEnabled(False)
 
     def _onSearchDefinitions(self):
         query_str = self._ui.lineEditSearch.text().strip()
-        self.fullSearch(query_str, None, mode='definitions', only_web=True)
+        self.fullSearch(query_str, None, mode="definitions", only_web=True)
         self._ui.actionSearchDefinitions.setEnabled(False)
 
     def _onAdvancedSearch(self):
@@ -724,13 +750,12 @@ class MainWindow(QMainWindow):
     def searchSelectedText(self):
         text = self._ui.webView.page().selectedText().strip()
         if len(text) > 100:
-            text = ''.join(text[:100].rsplit(None, 1)[:1])
+            text = "".join(text[:100].rsplit(None, 1)[:1])
         self._ui.lineEditSearch.setText(text)
         self._instantSearch(pending=True, delay=False)
 
     def _onMonitorClipboardChanged(self):
-        get_config()['monitorClipboard'] = \
-            self._ui.actionMonitorClipboard.isChecked()
+        get_config()["monitorClipboard"] = self._ui.actionMonitorClipboard.isChecked()
 
     def _onPaste(self):
         clipboard = QApplication.clipboard()
@@ -741,7 +766,7 @@ class MainWindow(QMainWindow):
     def _onClipboardChanged(self, mode):
         if self.isActiveWindow():
             return
-        if not get_config().get('monitorClipboard', False):
+        if not get_config().get("monitorClipboard", False):
             return
 
         clipboard = QApplication.clipboard()
@@ -754,7 +779,7 @@ class MainWindow(QMainWindow):
         else:
             return
 
-        text = ' '.join(text[:100].splitlines()).strip()
+        text = " ".join(text[:100].splitlines()).strip()
         res = self._incremental_search(text)
         if res:
             self._ui.lineEditSearch.setText(text)
@@ -773,10 +798,8 @@ class MainWindow(QMainWindow):
     def _onNavActionChanged(self):
         webPage = self._ui.webView.page()
         ui = self._ui
-        ui.toolButtonNavForward.setEnabled(
-            webPage.action(QWebPage.Forward).isEnabled())
-        ui.toolButtonNavBack.setEnabled(
-            webPage.action(QWebPage.Back).isEnabled())
+        ui.toolButtonNavForward.setEnabled(webPage.action(QWebPage.Forward).isEnabled())
+        ui.toolButtonNavBack.setEnabled(webPage.action(QWebPage.Back).isEnabled())
 
     # -----------
     # Auto Pron
@@ -786,22 +809,22 @@ class MainWindow(QMainWindow):
         self._timerAutoPron.start(_INTERVAL_AUTO_PRON)
 
     def _onTimerAutoPronTimeout(self):
-        autoplayback = get_config().get('autoPronPlayback', None)
+        autoplayback = get_config().get("autoPronPlayback", None)
         if autoplayback:
             metaData = self._ui.webView.page().mainFrame().metaData()
-            if autoplayback == 'US' and ('us_pron' in metaData):
-                self._playbackAudio('/us_hwd_pron/' + metaData['us_pron'][0])
-            elif autoplayback == 'GB' and ('gb_pron' in metaData):
-                self._playbackAudio('/gb_hwd_pron/' + metaData['gb_pron'][0])
+            if autoplayback == "US" and ("us_pron" in metaData):
+                self._playbackAudio("/us_hwd_pron/" + metaData["us_pron"][0])
+            elif autoplayback == "GB" and ("gb_pron" in metaData):
+                self._playbackAudio("/gb_hwd_pron/" + metaData["gb_pron"][0])
 
     def _onAutoPronChanged(self, action):
         config = get_config()
         if action == self._ui.actionPronUS:
-            config['autoPronPlayback'] = 'US'
+            config["autoPronPlayback"] = "US"
         elif action == self._ui.actionPronGB:
-            config['autoPronPlayback'] = 'GB'
+            config["autoPronPlayback"] = "GB"
         else:
-            config['autoPronPlayback'] = ''
+            config["autoPronPlayback"] = ""
 
     # -----------
     # Find
@@ -822,35 +845,36 @@ class MainWindow(QMainWindow):
                 ui.actionFindNext.setEnabled(False)
                 ui.actionFindPrev.setEnabled(False)
         elif curr_visible:
-            self.findText('')
+            self.findText("")
 
     def findText(self, text):
         self._ui.actionFindNext.setEnabled(bool(text))
         self._ui.actionFindPrev.setEnabled(bool(text))
 
         findtext = self._ui.webView.findText
-        findtext('')
-        findtext('', QWebPage.HighlightAllOccurrences)
+        findtext("")
+        findtext("", QWebPage.HighlightAllOccurrences)
         found = findtext(text, QWebPage.HighlightAllOccurrences)
         self._ui.actionFindNext.setEnabled(found)
         self._ui.actionFindPrev.setEnabled(found)
         if found:
             findtext(text, QWebPage.FindWrapsAroundDocument)
         if found or not text:
-            style = 'QLineEdit{ background-color: auto; color: auto; }'
+            style = "QLineEdit{ background-color: auto; color: auto; }"
         else:
-            style = 'QLineEdit { background-color: #f77; color: white; }'
+            style = "QLineEdit { background-color: #f77; color: white; }"
         self._ui.lineEditFind.setStyleSheet(style)
 
     def findNext(self):
         self._ui.webView.findText(
-            self._ui.lineEditFind.text(),
-            QWebPage.FindWrapsAroundDocument)
+            self._ui.lineEditFind.text(), QWebPage.FindWrapsAroundDocument
+        )
 
     def findPrev(self):
         self._ui.webView.findText(
             self._ui.lineEditFind.text(),
-            QWebPage.FindBackward | QWebPage.FindWrapsAroundDocument)
+            QWebPage.FindBackward | QWebPage.FindWrapsAroundDocument,
+        )
 
     # -------
     # Print
@@ -859,7 +883,7 @@ class MainWindow(QMainWindow):
     def printPreview(self):
         ui = self._ui
         printer = self._printer
-        printer.setDocName(ui.webView.title() or '')
+        printer.setDocName(ui.webView.title() or "")
         dialog = QPrintPreviewDialog(printer, self)
         dialog.paintRequested.connect(ui.webView.print_)
         dialog.exec_()
@@ -867,7 +891,7 @@ class MainWindow(QMainWindow):
     def print_(self):
         ui = self._ui
         printer = self._printer
-        printer.setDocName(ui.webView.title() or '')
+        printer.setDocName(ui.webView.title() or "")
         dialog = QPrintDialog(printer, self)
         if dialog.exec_() == QDialog.Accepted:
             ui.webView.print_(printer)
@@ -889,7 +913,7 @@ class MainWindow(QMainWindow):
         webbrowser.open(_HELP_PAGE_URL)
 
     def _onAbout(self):
-        self._ui.webView.load(QUrl('static:///documents/about.html'))
+        self._ui.webView.load(QUrl("static:///documents/about.html"))
 
     # ----------
     # Indexer
@@ -897,28 +921,40 @@ class MainWindow(QMainWindow):
 
     def _check_index(self):
         config = get_config()
-        if 'dataDir' in config:
-            if config.get('versionIndexed', '') < _INDEX_SUPPORTED:
+        if "dataDir" in config:
+            if config.get("versionIndexed", "") < _INDEX_SUPPORTED:
                 # Index is obsolete
-                msg = ("The format of the index files has been changed.\n"
-                       "Please recreate the index database.")
-            elif not is_ldoce5_dir(config['dataDir']):
+                msg = (
+                    "The format of the index files has been changed.\n"
+                    "Please recreate the index database."
+                )
+            elif not is_ldoce5_dir(config["dataDir"]):
                 # dataDir has been dissapeared
-                msg = ("The 'ldoce5.data' folder is not found at '{0}'.\n"
-                       "Please recreate the index database.".format(
-                    config.get('dataDir', '')))
+                msg = (
+                    "The 'ldoce5.data' folder is not found at '{0}'.\n"
+                    "Please recreate the index database.".format(
+                        config.get("dataDir", "")
+                    )
+                )
             else:
                 return
         else:
             # not exist yet
-            msg = ("This application has to construct an index database"
-                   " before you can use it.\n"
-                   "Create now?\n"
-                   "(It will take 3-10 minutes, "
-                   "depending on the speed of your machine)")
+            msg = (
+                "This application has to construct an index database"
+                " before you can use it.\n"
+                "Create now?\n"
+                "(It will take 3-10 minutes, "
+                "depending on the speed of your machine)"
+            )
 
-        r = QMessageBox.question(self, "Welcome to the LDOCE5 Viewer", msg,
-                                 QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Yes)
+        r = QMessageBox.question(
+            self,
+            "Welcome to the LDOCE5 Viewer",
+            msg,
+            QMessageBox.Yes | QMessageBox.Cancel,
+            QMessageBox.Yes,
+        )
         if r == QMessageBox.Yes:
             self._show_indexer_dialog(autostart=True)
         else:
@@ -929,8 +965,8 @@ class MainWindow(QMainWindow):
         config = get_config()
 
         # Disable clipboard monitoring
-        mc_enabled = config.get('monitorClipboard', False)
-        config['monitorClipboard'] = False
+        mc_enabled = config.get("monitorClipboard", False)
+        config["monitorClipboard"] = False
 
         # Show the indexer dialog
         self._unload_searchers()
@@ -942,7 +978,7 @@ class MainWindow(QMainWindow):
             self._instantSearch(pending=True, delay=False)
 
         # Restore the value of monitorClipboard
-        config['monitorClipboard'] = mc_enabled
+        config["monitorClipboard"] = mc_enabled
 
     # -------
     # Setup
@@ -972,7 +1008,8 @@ class MainWindow(QMainWindow):
         ui.lineEditSearch = LineEdit(self)
         ui.lineEditSearch.setPlaceholderText("Search...")
         ui.lineEditSearch.setInputMethodHints(
-            Qt.ImhUppercaseOnly | Qt.ImhLowercaseOnly | Qt.ImhDigitsOnly)
+            Qt.ImhUppercaseOnly | Qt.ImhLowercaseOnly | Qt.ImhDigitsOnly
+        )
         toolBar.addWidget(ui.toolButtonNavBack)
         toolBar.addWidget(ui.toolButtonNavForward)
         toolBar.addWidget(ui.lineEditSearch)
@@ -981,40 +1018,41 @@ class MainWindow(QMainWindow):
         toolBar.addAction(ui.actionAdvancedSearch)
 
         # Icons
-        def _set_icon(obj, name=None, var_suffix=''):
+        def _set_icon(obj, name=None, var_suffix=""):
             if name:
-                icon = QIcon.fromTheme(name,
-                                       QIcon(':/icons/' + name + var_suffix + '.png'))
+                icon = QIcon.fromTheme(
+                    name, QIcon(":/icons/" + name + var_suffix + ".png")
+                )
                 obj.setIcon(icon)
             else:
                 obj.setIcon(QIcon())
 
         self.setWindowIcon(QIcon(":/icons/icon.png"))
-        _set_icon(ui.actionFindClose, 'window-close')
-        _set_icon(ui.actionNavForward, 'go-next', '24')
-        _set_icon(ui.actionNavBack, 'go-previous', '24')
-        _set_icon(ui.actionFindNext, 'go-down')
-        _set_icon(ui.actionFindPrev, 'go-up')
-        _set_icon(ui.actionCloseInspector, 'window-close')
+        _set_icon(ui.actionFindClose, "window-close")
+        _set_icon(ui.actionNavForward, "go-next", "24")
+        _set_icon(ui.actionNavBack, "go-previous", "24")
+        _set_icon(ui.actionFindNext, "go-down")
+        _set_icon(ui.actionFindPrev, "go-up")
+        _set_icon(ui.actionCloseInspector, "window-close")
         ui.actionSearchDefinitions.setIcon(QIcon())
         ui.actionSearchExamples.setIcon(QIcon())
 
         if not _IS_OSX:
-            _set_icon(ui.actionCreateIndex, 'document-properties')
-            _set_icon(ui.actionFind, 'edit-find')
-            _set_icon(ui.actionQuit, 'application-exit')
-            _set_icon(ui.actionZoomIn, 'zoom-in')
-            _set_icon(ui.actionZoomOut, 'zoom-out')
-            _set_icon(ui.actionNormalSize, 'zoom-original')
-            _set_icon(ui.actionHelp, 'help-contents')
-            _set_icon(ui.actionAbout, 'help-about')
-            _set_icon(ui.actionPrint, 'document-print')
-            _set_icon(ui.actionPrintPreview, 'document-print-preview')
-            _set_icon(wp.action(QWebPage.Forward), 'go-next', '24')
-            _set_icon(wp.action(QWebPage.Back), 'go-previous', '24')
-            _set_icon(wp.action(QWebPage.Reload), 'reload')
-            _set_icon(wp.action(QWebPage.CopyImageToClipboard), 'edit-copy')
-            _set_icon(wp.action(QWebPage.InspectElement), 'document-properties')
+            _set_icon(ui.actionCreateIndex, "document-properties")
+            _set_icon(ui.actionFind, "edit-find")
+            _set_icon(ui.actionQuit, "application-exit")
+            _set_icon(ui.actionZoomIn, "zoom-in")
+            _set_icon(ui.actionZoomOut, "zoom-out")
+            _set_icon(ui.actionNormalSize, "zoom-original")
+            _set_icon(ui.actionHelp, "help-contents")
+            _set_icon(ui.actionAbout, "help-about")
+            _set_icon(ui.actionPrint, "document-print")
+            _set_icon(ui.actionPrintPreview, "document-print-preview")
+            _set_icon(wp.action(QWebPage.Forward), "go-next", "24")
+            _set_icon(wp.action(QWebPage.Back), "go-previous", "24")
+            _set_icon(wp.action(QWebPage.Reload), "reload")
+            _set_icon(wp.action(QWebPage.CopyImageToClipboard), "edit-copy")
+            _set_icon(wp.action(QWebPage.InspectElement), "document-properties")
         else:
             ui.toolBar.setIconSize(QSize(16, 16))
             ui.actionNavForward.setIcon(QIcon(":/icons/go-next-mac.png"))
@@ -1061,8 +1099,7 @@ class MainWindow(QMainWindow):
         wp.action(QWebPage.Back).changed.connect(self._onNavActionChanged)
 
         # ListView
-        ui.listWidgetIndex.setAttribute(Qt.WA_MacShowFocusRect, False);
-
+        ui.listWidgetIndex.setAttribute(Qt.WA_MacShowFocusRect, False)
         # WebView
         wp.setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         QWebSettings.setMaximumPagesInCache(32)
@@ -1070,15 +1107,19 @@ class MainWindow(QMainWindow):
         for name in _LOCAL_SCHEMES:
             QWebSecurityOrigin.addLocalScheme(name)
 
-        for web_act in (QWebPage.OpenLinkInNewWindow,
-                        QWebPage.OpenFrameInNewWindow, QWebPage.OpenImageInNewWindow,
-                        QWebPage.DownloadLinkToDisk, QWebPage.DownloadImageToDisk,
-                        QWebPage.CopyLinkToClipboard, QWebPage.CopyImageToClipboard,
-                        ):
+        for web_act in (
+            QWebPage.OpenLinkInNewWindow,
+            QWebPage.OpenFrameInNewWindow,
+            QWebPage.OpenImageInNewWindow,
+            QWebPage.DownloadLinkToDisk,
+            QWebPage.DownloadImageToDisk,
+            QWebPage.CopyLinkToClipboard,
+            QWebPage.CopyImageToClipboard,
+        ):
             wp.action(web_act).setEnabled(False)
             wp.action(web_act).setVisible(False)
 
-        if hasattr(QWebPage, 'CopyImageUrlToClipboard'):
+        if hasattr(QWebPage, "CopyImageUrlToClipboard"):
             wp.action(QWebPage.CopyImageUrlToClipboard).setEnabled(False)
             wp.action(QWebPage.CopyImageUrlToClipboard).setVisible(False)
 
@@ -1086,11 +1127,11 @@ class MainWindow(QMainWindow):
         ui.menuEdit.insertSeparator(ui.actionFind)
 
         self.addAction(wv.actionSearchText)
-        wv.actionSearchText.setShortcut(QKeySequence('Ctrl+E'))
+        wv.actionSearchText.setShortcut(QKeySequence("Ctrl+E"))
 
         # Web Inspector
         wp.settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
-        wp.action(QWebPage.InspectElement).setText('Inspect Element')
+        wp.action(QWebPage.InspectElement).setText("Inspect Element")
         ui.webInspector.setPage(wp)
         self.setInspectorVisible(False)
 
@@ -1108,10 +1149,10 @@ class MainWindow(QMainWindow):
         ui.lineEditFind.textChanged.connect(self.findText)
         ui.lineEditFind.returnPressed.connect(self.findNext)
         ui.lineEditFind.escapePressed.connect(
-            partial(self.setFindbarVisible, visible=False))
+            partial(self.setFindbarVisible, visible=False)
+        )
         ui.lineEditFind.shiftReturnPressed.connect(self.findPrev)
-        ui.listWidgetIndex.itemSelectionChanged.connect(
-            self._onItemSelectionChanged)
+        ui.listWidgetIndex.itemSelectionChanged.connect(self._onItemSelectionChanged)
         wp.linkClicked.connect(self._onWebViewLinkClicked)
         wv.loadStarted.connect(partial(self.setFindbarVisible, visible=False))
         wv.wheelWithCtrl.connect(self._onWebViewWheelWithCtrl)
@@ -1139,14 +1180,15 @@ class MainWindow(QMainWindow):
         act_conn(ui.actionZoomOut, partial(self.setZoom, -1, relative=True))
         act_conn(ui.actionNormalSize, partial(self.setZoom, 0))
         act_conn(ui.actionMonitorClipboard, self._onMonitorClipboardChanged)
-        act_conn(ui.actionFind,
-                 partial(self.setFindbarVisible, visible=True))
-        act_conn(ui.actionFindClose,
-                 partial(self.setFindbarVisible, visible=False))
-        act_conn(ui.actionCloseInspector,
-                 partial(self.setInspectorVisible, visible=False))
-        act_conn(wp.action(QWebPage.InspectElement),
-                 partial(self.setInspectorVisible, visible=True))
+        act_conn(ui.actionFind, partial(self.setFindbarVisible, visible=True))
+        act_conn(ui.actionFindClose, partial(self.setFindbarVisible, visible=False))
+        act_conn(
+            ui.actionCloseInspector, partial(self.setInspectorVisible, visible=False)
+        )
+        act_conn(
+            wp.action(QWebPage.InspectElement),
+            partial(self.setInspectorVisible, visible=True),
+        )
 
         ui.actionGroupAutoPron = QActionGroup(self)
         ui.actionGroupAutoPron.addAction(ui.actionPronOff)
@@ -1166,7 +1208,7 @@ class MainWindow(QMainWindow):
 
         actionPaste = QAction(self)
         actionPaste.triggered.connect(self._onPaste)
-        actionPaste.setShortcut(QKeySequence('Ctrl+V'))
+        actionPaste.setShortcut(QKeySequence("Ctrl+V"))
         self.addAction(actionPaste)
 
         # Shorcut keys
@@ -1178,37 +1220,54 @@ class MainWindow(QMainWindow):
         ui.actionZoomIn.setShortcuts(QKeySequence.ZoomIn)
         ui.actionZoomOut.setShortcuts(QKeySequence.ZoomOut)
         ui.actionPrint.setShortcuts(QKeySequence.Print)
-        ui.actionNormalSize.setShortcut(QKeySequence('Ctrl+0'))
-        ui.actionFocusLineEdit.setShortcut(QKeySequence('Ctrl+L'))
-        wp.action(QWebPage.SelectAll).setShortcut(QKeySequence('Ctrl+A'))
-        wp.action(QWebPage.Back).setShortcuts([
-            k for k in QKeySequence.keyBindings(QKeySequence.Back)
-            if not k.matches(QKeySequence("Backspace"))])
+        ui.actionNormalSize.setShortcut(QKeySequence("Ctrl+0"))
+        ui.actionFocusLineEdit.setShortcut(QKeySequence("Ctrl+L"))
+        wp.action(QWebPage.SelectAll).setShortcut(QKeySequence("Ctrl+A"))
+        wp.action(QWebPage.Back).setShortcuts(
+            [
+                k
+                for k in QKeySequence.keyBindings(QKeySequence.Back)
+                if not k.matches(QKeySequence("Backspace"))
+            ]
+        )
         wp.action(QWebPage.Forward).setShortcuts(
-            [k for k in QKeySequence.keyBindings(QKeySequence.Forward)
-             if not k.matches(QKeySequence("Shift+Backspace"))])
-        ui.actionNavBack.setShortcuts([
-                                          k for k in QKeySequence.keyBindings(QKeySequence.Back)
-                                          if not k.matches(QKeySequence("Backspace"))] +
-                                      [QKeySequence("Ctrl+[")])
+            [
+                k
+                for k in QKeySequence.keyBindings(QKeySequence.Forward)
+                if not k.matches(QKeySequence("Shift+Backspace"))
+            ]
+        )
+        ui.actionNavBack.setShortcuts(
+            [
+                k
+                for k in QKeySequence.keyBindings(QKeySequence.Back)
+                if not k.matches(QKeySequence("Backspace"))
+            ]
+            + [QKeySequence("Ctrl+[")]
+        )
         ui.actionNavForward.setShortcuts(
-            [k for k in QKeySequence.keyBindings(QKeySequence.Forward)
-             if not k.matches(QKeySequence("Shift+Backspace"))] +
-            [QKeySequence("Ctrl+]")])
+            [
+                k
+                for k in QKeySequence.keyBindings(QKeySequence.Forward)
+                if not k.matches(QKeySequence("Shift+Backspace"))
+            ]
+            + [QKeySequence("Ctrl+]")]
+        )
 
         # Reset
-        self._updateTitle('')
+        self._updateTitle("")
         self._updateIndex()
         self.setFindbarVisible(False)
         self._onTextChanged(self._ui.lineEditSearch.text())
         self._onNavActionChanged()
 
     def _setup_sqlite(self):
-        db_path = os.path.join(os.path.expanduser('~'), '.local/share/ldoce5viewer/ldoce5.db')
+        db_path = os.path.join(
+            os.path.expanduser("~"), ".local/share/ldoce5viewer/ldoce5.db"
+        )
         self.con = sqlite3.connect(db_path)
         self.cur = self.con.cursor()
         self.cur.execute(sql_create_words_table)
-
 
     # ----------------
     # Configurations
@@ -1218,24 +1277,22 @@ class MainWindow(QMainWindow):
         ui = self._ui
         config = get_config()
         try:
-            if 'windowGeometry' in config:
-                self.restoreGeometry(config['windowGeometry'])
-            if 'splitterSizes' in config:
-                ui.splitter.restoreState(config['splitterSizes'])
+            if "windowGeometry" in config:
+                self.restoreGeometry(config["windowGeometry"])
+            if "splitterSizes" in config:
+                ui.splitter.restoreState(config["splitterSizes"])
         except:
             pass
 
         try:
-            pron = config.get('autoPronPlayback', None)
-            acts = {'US': self._ui.actionPronUS,
-                    'GB': self._ui.actionPronGB}
+            pron = config.get("autoPronPlayback", None)
+            acts = {"US": self._ui.actionPronUS, "GB": self._ui.actionPronGB}
             acts.get(pron, self._ui.actionPronOff).setChecked(True)
         except:
             pass
 
         try:
-            ui.actionMonitorClipboard.setChecked(
-                config.get('monitorClipboard', False))
+            ui.actionMonitorClipboard.setChecked(config.get("monitorClipboard", False))
         except:
             pass
 
@@ -1246,8 +1303,8 @@ class MainWindow(QMainWindow):
 
     def _save_to_configfile(self):
         config = get_config()
-        config['windowGeometry'] = bytes(self.saveGeometry())
-        config['splitterSizes'] = bytes(self._ui.splitter.saveState())
+        config["windowGeometry"] = bytes(self.saveGeometry())
+        config["splitterSizes"] = bytes(self._ui.splitter.saveState())
         config.save()
 
     # -----------------
@@ -1286,12 +1343,14 @@ class MainWindow(QMainWindow):
             config = get_config()
             try:
                 obj = self._lazy[_LAZY_FTS_HWDPHR] = fulltext.Searcher(
-                    config.fulltext_hwdphr_path, config.variations_path)
+                    config.fulltext_hwdphr_path, config.variations_path
+                )
             except (EnvironmentError, fulltext.IndexError):
                 pass
             self._updateNetworkAccessManager(
                 self._lazy.get(_LAZY_FTS_HWDPHR, None),
-                self._lazy.get(_LAZY_FTS_DEFEXA, None))
+                self._lazy.get(_LAZY_FTS_DEFEXA, None),
+            )
 
         return obj
 
@@ -1301,15 +1360,15 @@ class MainWindow(QMainWindow):
         if obj is None:
             config = get_config()
             try:
-                obj = self._lazy[_LAZY_FTS_DEFEXA] = \
-                    fulltext.Searcher(
-                        config.fulltext_defexa_path,
-                        config.variations_path)
+                obj = self._lazy[_LAZY_FTS_DEFEXA] = fulltext.Searcher(
+                    config.fulltext_defexa_path, config.variations_path
+                )
             except (EnvironmentError, fulltext.IndexError):
                 pass
             self._updateNetworkAccessManager(
                 self._lazy.get(_LAZY_FTS_HWDPHR, None),
-                self._lazy.get(_LAZY_FTS_DEFEXA, None))
+                self._lazy.get(_LAZY_FTS_DEFEXA, None),
+            )
 
         return obj
 
@@ -1319,8 +1378,9 @@ class MainWindow(QMainWindow):
         if obj is None:
             searcher = self._fts_hwdphr
             if searcher:
-                obj = self._lazy[_LAZY_FTS_HWDPHR_ASYNC] = \
-                    AsyncFTSearcher(self, searcher)
+                obj = self._lazy[_LAZY_FTS_HWDPHR_ASYNC] = AsyncFTSearcher(
+                    self, searcher
+                )
                 obj.finished.connect(self._onAsyncFTSearchFinished)
                 obj.error.connect(self._onAsyncFTSearchError)
 
@@ -1332,7 +1392,8 @@ class MainWindow(QMainWindow):
         if obj is None:
             try:
                 obj = self._lazy[_LAZY_INCREMENTAL] = incremental.Searcher(
-                    get_config().incremental_path)
+                    get_config().incremental_path
+                )
             except (EnvironmentError, incremental.IndexError):
                 pass
 
@@ -1342,8 +1403,9 @@ class MainWindow(QMainWindow):
     def _soundplayer(self):
         obj = self._lazy.get(_LAZY_SOUNDPLAYER, None)
         if obj is None:
-            obj = self._lazy[_LAZY_SOUNDPLAYER] = \
-                create_soundplayer(self, get_config()._data_dir)
+            obj = self._lazy[_LAZY_SOUNDPLAYER] = create_soundplayer(
+                self, get_config()._data_dir
+            )
 
         return obj
 
@@ -1351,8 +1413,7 @@ class MainWindow(QMainWindow):
     def _advsearch_window(self):
         obj = self._lazy.get(_LAZY_ADVSEARCH_WINDOW, None)
         if obj is None:
-            obj = self._lazy[_LAZY_ADVSEARCH_WINDOW] = \
-                AdvancedSearchDialog(self)
+            obj = self._lazy[_LAZY_ADVSEARCH_WINDOW] = AdvancedSearchDialog(self)
 
         return obj
 
