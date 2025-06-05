@@ -9,19 +9,13 @@ This software is free and open source software licensed under the terms of GPLv3
 
 ## Dependency
 
-- pyenv
-- Python version: `3.8`
-
-```shell
-pyenv install
-uv venv
-source .venv/bin/activate
-uv pip install -r requirements.txt
-```
+- [uv](https://github.com/astral-sh/uv)
 
 ## Development
 
 ```shell
+uv sync
+source .venv/bin/activate
 python ldoce5viewer.py
 ```
 
@@ -30,6 +24,12 @@ python ldoce5viewer.py
 ```shell
 make
 sudo make install
+```
+
+## Arch Linux
+
+```shell
+sudo pacman -S libxml2-legacy
 ```
 
 ## References
