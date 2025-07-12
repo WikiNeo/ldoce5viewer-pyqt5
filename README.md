@@ -1,5 +1,7 @@
 # LDOCE5 Viewer (PyQt5)
 
+**The repo is archived, please refer to [ldoce5viewer-pyside6](https://github.com/WikiNeo/ldoce5viewer-pyside6)**
+
 The LDOCE5 Viewer is an alternative dictionary viewer for the Longman Dictionary of Contemporary English 5th
 Edition (LDOCE 5).
 
